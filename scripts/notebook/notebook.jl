@@ -5,7 +5,7 @@ pop!(LOAD_PATH)
 using InteractiveUtils
 
 let
-    args = [popfirst!(Base.ARGS) for _ in 1:2]
+    args = [popfirst!(Base.ARGS) for _ = 1:2]
 
     conn_pipeline, telemetry_pipeline = args[1:2]
 

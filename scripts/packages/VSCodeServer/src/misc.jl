@@ -51,7 +51,7 @@ end
 
 # https://github.com/JuliaDebug/Debugger.jl/blob/4cf99c662ab89da0fe7380c1e81461e2428e8b00/src/limitio.jl
 
-mutable struct LimitIO{IO_t <: IO} <: IO
+mutable struct LimitIO{IO_t<:IO} <: IO
     io::IO_t
     maxbytes::Int
     n::Int

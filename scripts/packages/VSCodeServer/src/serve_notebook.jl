@@ -25,7 +25,7 @@ function notebook_runcell_request(conn, params::NotebookRunCellArguments)
 
             IJuliaCore.flush_all()
 
-            return (success = true, error = (message = "", name = "", stack = ""))
+            return (success=true, error=(message="", name="", stack=""))
         end
     catch err
         bt = catch_backtrace()
@@ -39,7 +39,7 @@ function notebook_runcell_request(conn, params::NotebookRunCellArguments)
             error_message_str = sprint(showerror, inner_err)
             traceback = sprint(Base.show_backtrace, bt)
 
-            return (success = false, error = (message = error_message_str, name = error_type, stack = traceback))
+            return (success=false, error=(message=error_message_str, name=error_type, stack=traceback))
         else
             rethrow(err)
             error("Not clear what this means, but we should probably send a crash report.")
@@ -58,7 +58,7 @@ function serve_notebook(pipename; crashreporting_pipename::Union{AbstractString,
 
     run(conn_endpoint[])
 
-    IJuliaCore.orig_stdin[]  = Base.stdin
+    IJuliaCore.orig_stdin[] = Base.stdin
     IJuliaCore.orig_stdout[] = Base.stdout
     IJuliaCore.orig_stderr[] = Base.stderr
 

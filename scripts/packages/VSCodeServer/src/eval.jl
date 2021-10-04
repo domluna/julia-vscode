@@ -14,48 +14,48 @@ const EVAL_BACKEND_TASK = Ref{Any}(nothing)
 const IS_BACKEND_WORKING = Ref{Bool}(false)
 
 function is_evaling()
-  return IS_BACKEND_WORKING[]
+    return IS_BACKEND_WORKING[]
 end
 
 function run_with_backend(f, args...)
-  put!(EVAL_CHANNEL_IN, (f, args))
-  return unwrap(take!(EVAL_CHANNEL_OUT))
+    put!(EVAL_CHANNEL_IN, (f, args))
+    return unwrap(take!(EVAL_CHANNEL_OUT))
 end
 
 function start_eval_backend()
-  global EVAL_BACKEND_TASK[] = @async begin
-    Base.sigatomic_begin()
-    while true
-      try
-        f, args = take!(EVAL_CHANNEL_IN)
-        Base.sigatomic_end()
-        IS_BACKEND_WORKING[] = true
-        res = try
-            Base.invokelatest(f, args...)
-        catch err
-            @static if isdefined(Base, :catch_stack)
-                EvalErrorStack(Base.catch_stack())
-            else
-                EvalError(err, catch_backtrace())
+    global EVAL_BACKEND_TASK[] = @async begin
+        Base.sigatomic_begin()
+        while true
+            try
+                f, args = take!(EVAL_CHANNEL_IN)
+                Base.sigatomic_end()
+                IS_BACKEND_WORKING[] = true
+                res = try
+                    Base.invokelatest(f, args...)
+                catch err
+                    @static if isdefined(Base, :catch_stack)
+                        EvalErrorStack(Base.catch_stack())
+                    else
+                        EvalError(err, catch_backtrace())
+                    end
+                end
+                IS_BACKEND_WORKING[] = false
+                Base.sigatomic_begin()
+                put!(EVAL_CHANNEL_OUT, wrap(res))
+            catch err
+                put!(EVAL_CHANNEL_OUT, wrap(err))
+            finally
+                IS_BACKEND_WORKING[] = false
             end
         end
-        IS_BACKEND_WORKING[] = false
-        Base.sigatomic_begin()
-        put!(EVAL_CHANNEL_OUT, wrap(res))
-      catch err
-        put!(EVAL_CHANNEL_OUT, wrap(err))
-      finally
-        IS_BACKEND_WORKING[] = false
-      end
+        Base.sigatomic_end()
     end
-    Base.sigatomic_end()
-  end
 end
 
 function repl_interrupt_request(conn, ::Nothing)
     println(stderr, "^C")
     if EVAL_BACKEND_TASK[] !== nothing && !istaskdone(EVAL_BACKEND_TASK[]) && IS_BACKEND_WORKING[]
-        schedule(EVAL_BACKEND_TASK[], InterruptException(); error = true)
+        schedule(EVAL_BACKEND_TASK[], InterruptException(); error=true)
     end
 end
 
@@ -90,7 +90,7 @@ function add_code_to_repl_history(code)
 
         hist.cur_idx = length(hist.history) + 1
     catch err
-        @error "writing to history failed" exception=(err, catch_backtrace())
+        @error "writing to history failed" exception = (err, catch_backtrace())
     end
 end
 
@@ -132,11 +132,11 @@ function repl_runcode_request(conn, params::ReplRunCodeRequestParams)
                     prompt = mode.prompt
                     prefix = mode.prompt_prefix
                 catch err
-                    @debug "getting prompt info failed" exception=(err, catch_backtrace())
+                    @debug "getting prompt info failed" exception = (err, catch_backtrace())
                 end
 
-                for (i,line) in enumerate(eachline(IOBuffer(source_code)))
-                    if i==1
+                for (i, line) in enumerate(eachline(IOBuffer(source_code)))
+                    if i == 1
                         print(prefix, prompt, "\e[0m")
                         print(' '^code_column)
                     else
@@ -181,7 +181,7 @@ function repl_runcode_request(conn, params::ReplRunCodeRequestParams)
                         end
                     catch err
                         if !(err isa MethodError && err.f === display)
-                            printstyled(stderr, "Display Error: ", color = Base.error_color(), bold = true)
+                            printstyled(stderr, "Display Error: ", color=Base.error_color(), bold=true)
                             Base.display_error(stderr, err, catch_backtrace())
                         end
                     end
@@ -201,8 +201,8 @@ function repl_runcode_request(conn, params::ReplRunCodeRequestParams)
 end
 
 # don't inline this so we can find it in the stacktrace
-@noinline function inlineeval(m, code, code_line, code_column, file; softscope = false)
-    code = string('\n' ^ code_line, ' ' ^ code_column, code)
+@noinline function inlineeval(m, code, code_line, code_column, file; softscope=false)
+    code = string('\n'^code_line, ' '^code_column, code)
     args = softscope && VERSION >= v"1.5" ? (REPL.softscope, m, code, file) : (m, code, file)
     return Base.invokelatest(include_string, args...)
 end
@@ -244,7 +244,7 @@ end
 
 render(::Nothing) = ReplRunCodeRequestReturn("✓", codeblock("nothing"))
 
-indent4(s) = string(' ' ^ 4, s)
+indent4(s) = string(' '^4, s)
 codeblock(s) = joinlines(indent4.(splitlines(s)))
 
 struct EvalError
@@ -260,14 +260,14 @@ sprint_error_unwrap(err::LoadError) = sprint_error(err.error)
 sprint_error_unwrap(err) = sprint_error(err)
 
 function sprint_error(err)
-    sprintlimited(err, [], func = Base.display_error, limit = MAX_RESULT_LENGTH)
+    sprintlimited(err, [], func=Base.display_error, limit=MAX_RESULT_LENGTH)
 end
 
 function render(err::EvalError)
     bt = crop_backtrace(err.bt)
 
     errstr = sprint_error_unwrap(err.err)
-    inline = strlimit(first(split(errstr, "\n")), limit = INLINE_RESULT_LENGTH)
+    inline = strlimit(first(split(errstr, "\n")), limit=INLINE_RESULT_LENGTH)
     all = string('\n', codeblock(errstr), '\n', backtrace_string(bt))
 
     # handle duplicates e.g. from recursion
@@ -288,7 +288,7 @@ function render(stack::EvalErrorStack)
         append!(complete_bt, bt)
 
         errstr = sprint_error_unwrap(err)
-        inline *= strlimit(first(split(errstr, "\n")), limit = INLINE_RESULT_LENGTH)
+        inline *= strlimit(first(split(errstr, "\n")), limit=INLINE_RESULT_LENGTH)
         all *= string('\n', codeblock(errstr), '\n', backtrace_string(bt))
     end
 
@@ -329,7 +329,7 @@ function backtrace_string(bt)
     for (i, frame) in enumerate(stacktrace(bt))
         file = string(frame.file)
         full_file = fullpath(something(Base.find_source_file(file), file))
-        cmd = vscode_cmd_uri("language-julia.openFile"; path = full_file, line = frame.line)
+        cmd = vscode_cmd_uri("language-julia.openFile"; path=full_file, line=frame.line)
 
         print(io, i, ". `")
         Base.StackTraces.show_spec_linfo(io, frame)

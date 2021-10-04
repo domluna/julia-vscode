@@ -53,7 +53,7 @@ function gettestfilepath(ctx::Context, pkgspec::Types.PackageSpec)
             if entry.repo.tree_sha !== nothing
                 pkgfilepath = find_installed(pkgspec.name, pkgspec.uuid, entry.repo.tree_sha)
             elseif entry.path !== nothing
-                pkgfilepath =  project_rel_path(ctx, entry.path)
+                pkgfilepath = project_rel_path(ctx, entry.path)
             elseif pkgspec.uuid in keys(ctx.stdlibs)
                 pkgfilepath = Types.stdlib_path(pkgspec.name)
             else
@@ -70,7 +70,7 @@ function gettestfilepath(ctx::Context, pkgspec::Types.PackageSpec)
             if haskey(info, "git-tree-sha1")
                 pkgfilepath = find_installed(pkgspec.name, pkgspec.uuid, SHA1(info["git-tree-sha1"]))
             elseif haskey(info, "path")
-                pkgfilepath =  project_rel_path(ctx, info["path"])
+                pkgfilepath = project_rel_path(ctx, info["path"])
             elseif pkgspec.uuid in keys(ctx.stdlibs)
                 pkgfilepath = Types.stdlib_path(pkgspec.name)
             else

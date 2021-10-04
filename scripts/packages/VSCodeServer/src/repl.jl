@@ -81,7 +81,7 @@ function hook_repl(repl)
     main_mode = get_main_mode(repl)
 
     if VERSION > v"1.5-"
-        for _ in 1:20 # repl backend should be set up after 10s -- fall back to the pre-ast-transform approach otherwise
+        for _ = 1:20 # repl backend should be set up after 10s -- fall back to the pre-ast-transform approach otherwise
             isdefined(Base, :active_repl_backend) && continue
             sleep(0.5)
         end
@@ -116,7 +116,7 @@ function evalrepl(m, line, repl, main_mode)
             JSONRPC.send_notification(conn_endpoint[], "repl/starteval", nothing)
             did_notify = true
         catch err
-            @debug "Could not send repl/starteval notification" exception=(err, catch_backtrace())
+            @debug "Could not send repl/starteval notification" exception = (err, catch_backtrace())
         end
         r = run_with_backend() do
             fix_displays()
@@ -141,7 +141,7 @@ function evalrepl(m, line, repl, main_mode)
             try
                 JSONRPC.send_notification(conn_endpoint[], "repl/finisheval", nothing)
             catch err
-                @debug "Could not send repl/finisheval notification" exception=(err, catch_backtrace())
+                @debug "Could not send repl/finisheval notification" exception = (err, catch_backtrace())
             end
         end
     end

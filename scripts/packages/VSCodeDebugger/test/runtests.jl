@@ -1,4 +1,3 @@
 using Test
 
-@testset "VSCodeDebugger" begin
-end
+@testset "VSCodeDebugger" begin end

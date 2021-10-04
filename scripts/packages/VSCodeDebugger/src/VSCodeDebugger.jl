@@ -8,25 +8,25 @@ include("../../CodeTracking/src/CodeTracking.jl")
 include("../../JSON/src/JSON.jl")
 
 module JuliaInterpreter
-    using ..CodeTracking
+using ..CodeTracking
 
-    include("../../JuliaInterpreter/src/packagedef.jl")
+include("../../JuliaInterpreter/src/packagedef.jl")
 end
 
 module JSONRPC
-    import ..JSON
-    import UUIDs
+import ..JSON
+import UUIDs
 
-    include("../../JSONRPC/src/packagedef.jl")
+include("../../JSONRPC/src/packagedef.jl")
 end
 
 module DebugAdapter
-    import ..JuliaInterpreter
-    import ..JSON
-    import ..JSONRPC
-    import ..JSONRPC: @dict_readable, Outbound
+import ..JuliaInterpreter
+import ..JSON
+import ..JSONRPC
+import ..JSONRPC: @dict_readable, Outbound
 
-    include("../../DebugAdapter/src/packagedef.jl")
+include("../../DebugAdapter/src/packagedef.jl")
 end
 
 function startdebugger()
@@ -35,7 +35,7 @@ function startdebugger()
         @debug "Trying to connect to debug adapter."
         socket = Sockets.connect(pipenames[1])
         try
-            DebugAdapter.startdebug(socket, (err, bt)->global_err_handler(err, bt, pipenames[2], "Debugger"))
+            DebugAdapter.startdebug(socket, (err, bt) -> global_err_handler(err, bt, pipenames[2], "Debugger"))
         finally
             close(socket)
         end

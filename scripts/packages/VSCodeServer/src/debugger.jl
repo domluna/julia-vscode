@@ -24,7 +24,7 @@ function repl_startdebugger_request(conn, params::NamedTuple{(:debugPipename,),T
 end
 
 function remove_lln!(ex::Expr)
-    for i in length(ex.args):-1:1
+    for i = length(ex.args):-1:1
         if ex.args[i] isa LineNumberNode
             deleteat!(ex.args, i)
         elseif ex.args[i] isa Expr
@@ -45,7 +45,7 @@ function debugger_getdebugitems_request(conn, params)
     else
         obj = get_obj_by_accessor(accessor)
         if obj isa Module
-            for name in names(obj; all = true)
+            for name in names(obj; all=true)
                 isdefined(obj, name) || continue
                 strname = string(name)
                 startswith(strname, '#') && continue
@@ -58,10 +58,10 @@ function debugger_getdebugitems_request(conn, params)
             end
         end
     end
-    return sort!(out, lt = (x, y) -> x.hasChildren == y.hasChildren ? x.label < y.label : x.hasChildren)
+    return sort!(out, lt=(x, y) -> x.hasChildren == y.hasChildren ? x.label < y.label : x.hasChildren)
 end
 
-function get_obj_by_accessor(accessor, super = nothing)
+function get_obj_by_accessor(accessor, super=nothing)
     parts = split(accessor, '.')
     @assert length(parts) > 0
     top = popfirst!(parts)
@@ -95,10 +95,10 @@ end
 
 macro enter(command)
     remove_lln!(command)
-    :(JSONRPC.send_notification(conn_endpoint[], "debugger/enter", (code = $(string(command)), filename = $(string(__source__.file)))))
+    :(JSONRPC.send_notification(conn_endpoint[], "debugger/enter", (code=$(string(command)), filename=$(string(__source__.file)))))
 end
 
 macro run(command)
     remove_lln!(command)
-    :(JSONRPC.send_notification(conn_endpoint[], "debugger/run", (code = $(string(command)), filename = $(string(__source__.file)))))
+    :(JSONRPC.send_notification(conn_endpoint[], "debugger/run", (code=$(string(command)), filename=$(string(__source__.file)))))
 end

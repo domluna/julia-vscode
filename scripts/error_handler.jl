@@ -50,7 +50,7 @@ function global_err_handler(e, bt, vscode_pipe_name, cloudRole)
                 if isabspath(filename)
                     root_path_of_extension = normpath(joinpath(@__DIR__, "..", ".."))
                     if startswith(filename, root_path_of_extension)
-                        filename = joinpath(".", filename[lastindex(root_path_of_extension) + 1:end])
+                        filename = joinpath(".", filename[lastindex(root_path_of_extension)+1:end])
                     else
                         filename = basename(filename)
                     end
